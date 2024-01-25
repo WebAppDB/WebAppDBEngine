@@ -1,4 +1,6 @@
-export class WebAppDBEngine {
+import { IEngineRequestSubscriber } from "./WebAppDBEngineRequest.mjs"
+
+export class WebAppDBEngine extends(IEngineRequestSubscriber) {
 
   data = {
     elapseTime : 0,
@@ -9,6 +11,7 @@ export class WebAppDBEngine {
   };
   
   constructor(iFrameDom, iBaseApp, iFillScreen) {
+    super()
     this.data.frameDom = iFrameDom;
     this.data.frameDom.style.margin = "0px";
     this.data.frameDom.style.padding = "0px";
