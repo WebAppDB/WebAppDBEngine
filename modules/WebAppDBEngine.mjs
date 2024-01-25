@@ -23,7 +23,7 @@ export class WebAppDBEngine {
     }
 
     if (iFillScreen) {
-      window.requestAnimationFrame(function() { resizeFillScreen(this.data.frameDom); })
+      window.requestAnimationFrame(() => { resizeFillScreen(this.data.frameDom); })
     }
   }
 
