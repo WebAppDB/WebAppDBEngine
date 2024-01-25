@@ -1,11 +1,4 @@
-function appContainerObject(iAppObj, iAppDom){
-  return {
-    appObj : iAppObj,
-    appDom : iAppDom
-  };
-}
-
-export class WebAppEngine {
+export class WebAppDBEngine {
 
   data = {
     elapseTime : 0,
@@ -15,10 +8,11 @@ export class WebAppEngine {
     backButton : null,
   };
   
-  constructor(iFrameDom, iBaseApp) {
+  constructor(iFrameDom, iBaseApp, iFillScreen) {
     this.data.frameDom = iFrameDom;
     this.data.frameDom.style.margin = "0px";
     this.data.frameDom.style.padding = "0px";
+
     this.data.backButton = createBackButton(this);
     this.data.frameDom.appendChild(this.data.backButton);
 
@@ -26,6 +20,10 @@ export class WebAppEngine {
       this.data.appStack.push(appContainerObject(iBaseApp, createAppContainerDom()));
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
       this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
+    }
+
+    if (iFillScreen) {
+      window.requestAnimationFrame(function() { resizeFillScreen(this.data.frameDom); })
     }
   }
 
@@ -110,6 +108,28 @@ export class WebAppEngine {
   runEngine () {
     window.requestAnimationFrame(this.engineEntryPoint.bind(this));
   }
+}
+
+function appContainerObject(iAppObj, iAppDom){
+  return {
+    appObj : iAppObj,
+    appDom : iAppDom
+  };
+}
+
+function resizeFillScreen(iDom){
+  
+  iDom.style.position = "fixed";
+  iDom.style.bottom = "0px";
+
+  var desireHeight = iDom.offsetTop + iDom.offsetHeight;
+  var desireWidth = window.innerWidth;
+  if (iDom.clientHeight != desireHeight) {
+    iDom.style.height = desireHeight + "px";
+  }
+  if (iDom.clientWidth != desireWidth) iDom.style.width = desireWidth + "px";
+
+  window.requestAnimationFrame(function() { resizeFillScreen(iDom); })
 }
 
 function createAppContainerDom() {
