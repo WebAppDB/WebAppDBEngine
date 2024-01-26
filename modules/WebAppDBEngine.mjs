@@ -1,4 +1,5 @@
 import { IEngineRequestSubscriber } from "./WebAppDBEngineRequest.mjs"
+import { parseWebAppDescriptor } from "./WebAppDescriptor.mjs"
 
 export class WebAppDBEngine extends(IEngineRequestSubscriber) {
 
@@ -10,7 +11,7 @@ export class WebAppDBEngine extends(IEngineRequestSubscriber) {
     backButton : null,
   };
   
-  constructor(iFrameDom, iBaseApp, iFillScreen) {
+  constructor(iFrameDom, iBaseApp, iFillScreen, iCss = "") {
     super()
     this.data.frameDom = iFrameDom;
     this.data.frameDom.style.margin = "0px";
@@ -22,6 +23,16 @@ export class WebAppDBEngine extends(IEngineRequestSubscriber) {
     if (null != iBaseApp) {
       this.data.appStack.push(appContainerObject(iBaseApp, createAppContainerDom()));
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
+      
+      if ("" != iCss) {
+        var wLink = document.createElement( "link" );
+        wLink.href = iCss;
+        wLink.type = "text/css";
+        wLink.rel = "stylesheet";
+        wLink.media = "screen,print";      
+        this.data.appStack.at(-1).appDom.appendChild(wLink);
+      }
+
       this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
     }
 
@@ -30,8 +41,9 @@ export class WebAppDBEngine extends(IEngineRequestSubscriber) {
     }
   }
 
-  async loadModule(iModulePath) {
-    const module = await import(iModulePath);
+  async _loadModule(iWebAppDescriptor) {
+    var wWebApp = parseWebAppDescriptor(iWebAppDescriptor);
+    const module = await import(wWebApp.module);
     var wAppObj = module.getApp();
     if (null != wAppObj) {      
       if (0 != this.data.appStack.length) {
@@ -39,9 +51,26 @@ export class WebAppDBEngine extends(IEngineRequestSubscriber) {
         this.data.frameDom.removeChild(wLastApp.appDom);
       }
       this.data.appStack.push( appContainerObject(wAppObj, createAppContainerDom(this)));
+
+      if ("" != wWebApp.css) {
+        var wLink = document.createElement( "link" );
+        wLink.href = wWebApp.css;
+        wLink.type = "text/css";
+        wLink.rel = "stylesheet";
+        wLink.media = "screen,print";      
+        this.data.appStack.at(-1).appDom.appendChild(wLink);
+      }
+
       this.data.appStack.at(-1).appObj.initialize(this.data.appStack.at(-1).appDom);
       this.data.frameDom.appendChild(this.data.appStack.at(-1).appDom);
+      return true;
+    }
 
+    return false;
+  }
+
+  async loadModule(iWebAppDescriptor) {
+    if (true == await this._loadModule(iWebAppDescriptor)) {
       this.data.backButton.style.display = "block";
     }
   }

@@ -15,9 +15,9 @@ class WebAppDBEngineRequest {
     }
   }
 
-  loadModule( iModulePath ) {
+  loadModule( iWebAppDescriptor ) {
     for( var i = 0; i < this.data.subscribers.length; ++i) {
-      if (null != this.data.subscribers[i] ) this.data.subscribers[i].loadModule(iModulePath);
+      if (null != this.data.subscribers[i] ) this.data.subscribers[i].loadModule(iWebAppDescriptor);
     }
   }
 
@@ -34,11 +34,11 @@ export class IEngineRequestSubscriber {
     WebAppDBEngineRequest.getSingleton().subscribe(this);
   }
 
-  loadModule(iModulePath) {
+  loadModule(iWebAppDescriptor) {
   }
   
 }
 
-export function sendLoadModuleRequest(iModulePath) {
-  WebAppDBEngineRequest.getSingleton().loadModule(iModulePath);
+export function sendLoadModuleRequest(iWebAppDescriptor) {
+  WebAppDBEngineRequest.getSingleton().loadModule(iWebAppDescriptor);
 }
